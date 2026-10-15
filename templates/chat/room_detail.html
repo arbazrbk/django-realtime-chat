@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}# {{ room.name }} · Realtime Chat{% endblock %}
+{% block content %}
+<div class="chat-layout">
+  <section class="card chat">
+    <header class="chat-header">
+      <div>
+        <h1># {{ room.name }}</h1>
+        {% if room.description %}<p class="muted">{{ room.description }}</p>{% endif %}
+      </div>
+      <span id="status" class="status status-connecting">Connecting…</span>
+    </header>
+    <ol id="messages" class="messages">
+      {% for message in chat_messages %}
+        <li class="message{% if message.user_id == user.id %} own{% endif %}">
+          <span class="author">{{ message.user.username }}</span>
+          <time datetime="{{ message.created_at|date:'c' }}">{{ message.created_at|time:"H:i" }}</time>
+          <p>{{ message.content|linebreaksbr }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+    <p id="typing" class="typing muted" aria-live="polite"></p>
+    <form id="message-form" class="composer" autocomplete="off">
+      <textarea id="message-input" rows="1" maxlength="2000" placeholder="Message #{{ room.name }}" required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+  <aside class="card online">
+    <h2>Online</h2>
+    <ul id="online-users"></ul>
+  </aside>
+</div>
+{{ room.slug|json_script:"room-slug" }}
+{{ user.username|json_script:"current-user" }}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/room.js' %}"></script>
+{% endblock %}
